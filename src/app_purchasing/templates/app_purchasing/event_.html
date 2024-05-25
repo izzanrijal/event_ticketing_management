@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.17.0/dist/full.css" rel="stylesheet">
+  <style>
+    .btn-primary {
+      background-color: #3b82f6; /* Blue color for primary button */
+      color: #ffffff; /* White text color */
+      border: none; /* Remove default border */
+    }
+    .btn-primary:hover {
+      background-color: #2563eb; /* Darker blue on hover */
+    }
+    .card-body {
+      padding: 2rem; /* Add padding for clean look */
+    }
+    .card {
+      border-radius: 0.5rem; /* Add slight border radius */
+      overflow: hidden; /* Ensure children don't overflow */
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+      <img src="https://via.placeholder.com/1200x400" alt="Event Banner" class="w-full h-64 object-cover">
+      <div class="p-6">
+        <h1 class="text-3xl font-bold mb-4">{{ event.name }}</h1>
+        <p class="text-gray-700 mb-6">{{ event.description }}</p>
+        
+        <div class="mb-6">
+          <h2 class="text-2xl font-semibold mb-4">Event Details</h2>
+          <ul class="list-disc pl-5 text-gray-700">
+            <li>Date: {{ event.date }}</li>
+            <li>Time: {{ event.time }}</li>
+            <li>Location: {{ event.location }}</li>
+          </ul>
+        </div>
+
+        <div class="mb-6">
+          <h2 class="text-2xl font-semibold mb-4">Available Tickets</h2>
+          <div class="space-y-6" id="tickets-container">
+            {% for ticket in tickets %}
+            <div class="card bg-base-100 shadow-md">
+              <div class="card-body">
+                <h3 class="card-title text-xl font-semibold mb-2">{{ ticket.title }}</h3>
+                <p class="text-gray-600 mb-2">{{ ticket.description }}</p>
+                <p class="text-xl font-semibold mb-2">${{ ticket.price }}</p>
+                <p class="text-gray-500 mb-4">{{ ticket.available }} tickets available</p>
+                <div class="flex items-center mb-4">
+                  <label for="ticket-{{ ticket.id }}" class="mr-2">Quantity:</label>
+                  <input type="number" id="ticket-{{ ticket.id }}" name="ticket-{{ ticket.id }}" min="0" max="{{ ticket.available }}" class="input input-bordered w-20" value="0">
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button id="checkout-button" class="btn btn-primary w-full">Proceed to Checkout</button>
+      </div>
+    </div>
+
+    <!-- Google Map Embed -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+      <h2 class="text-2xl font-semibold mb-4 p-6">Event Location</h2>
+      <iframe class="w-full h-64" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q={{ event.location }}" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daisyui@1.17.0/dist/full.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkoutButton = document.getElementById('checkout-button');
+      checkoutButton.addEventListener('click', function() {
+        const selectedTickets = [];
+        {% for ticket in tickets %}
+        const quantity = parseInt(document.getElementById('ticket-{{ ticket.id }}').value);
+        if (quantity > 0) {
+          selectedTickets.push({ id: {{ ticket.id }}, quantity: quantity });
+        }
+        {% endfor %}
+
+        if (selectedTickets.length === 0) {
+          alert('Please select at least one ticket.');
+          return;
+        }
+
+        // Redirect to checkout page with selected tickets
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "checkout" %}';
+        
+        const csrfToken = '{{ csrf_token }}';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        const ticketsInput = document.createElement('input');
+        ticketsInput.type = 'hidden';
+        ticketsInput.name = 'selected_tickets';
+        ticketsInput.value = JSON.stringify(selectedTickets);
+        form.appendChild(ticketsInput);
+
+        document.body.appendChild(form);
+        form.submit();
+      });
+    });
+  </script>
+</body>
+</html>

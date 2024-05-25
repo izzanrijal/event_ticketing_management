@@ -7,11 +7,14 @@ authors = [
 ]
 dependencies = [
     "django==5.0.6",
+    "bun>=0.0.8",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
 
+[tool.pdm.scripts]
+dev = "pdm run src/manage.py runserver"
 
 [tool.pdm]
 distribution = false

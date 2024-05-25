@@ -1,0 +1,27 @@
+<!-- checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.17.0/dist/full.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+      <div class="p-6">
+        <h1 class="text-3xl font-bold mb-4">Checkout</h1>
+        <p class="text-gray-700 mb-6">You have selected the following tickets:</p>
+        <ul class="list-disc pl-5 text-gray-700">
+          {% for ticket in selected_tickets %}
+          <li>Ticket ID: {{ ticket.id }}, Quantity: {{ ticket.quantity }}</li>
+          {% endfor %}
+        </ul>
+        <button class="btn btn-primary mt-6">Complete Purchase</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
